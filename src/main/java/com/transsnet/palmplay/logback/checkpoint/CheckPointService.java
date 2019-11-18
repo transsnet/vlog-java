@@ -21,7 +21,7 @@ public class CheckPointService {
         }
         try {
             CheckPointMessage message = initCheckPointMessage(config, event, layout);
-            send(config, message);
+            send(config.getKafkaTopic(), message);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -30,8 +30,8 @@ public class CheckPointService {
     /***
      * 发送数据到打点接口
      */
-    static void send(CheckPointConfig config, CheckPointMessage message) {
-        KafkaProducerService.produceMsg(config.getKafkaTopic(), JSON.toJSONString(message));
+    static void send(String topic, CheckPointMessage message) {
+        KafkaProducerService.produceMsg(topic, JSON.toJSONString(message));
     }
 
     // 获得创建时间

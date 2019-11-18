@@ -29,7 +29,7 @@ public class KafkaProducerService {
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaServers);
 
-        //当 retries > 0 时，如果发送失败，会自动尝试重新发送数据。发送次数为retries设置的值。
+        //当retries > 0 时，如果发送失败，会自动尝试重新发送数据。发送次数为retries设置的值。
         props.put("retries", 1);
         // batch.size是producer批量发送的基本单位，默认是16384Bytes，即16kB；
         props.put("batch.size", 16384);

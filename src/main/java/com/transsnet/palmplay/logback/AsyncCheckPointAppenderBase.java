@@ -21,7 +21,7 @@ import java.util.concurrent.*;
  */
 public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E> implements AppenderAttachable<E> {
 
-    public static final int DEFAULT_QUEUE_SIZE = 256;
+    public static final int DEFAULT_QUEUE_SIZE = 1024;
     public static final int DEFAULT_WORKER_NUM = 5;
     static final int UNDEFINED = -1;
 
@@ -164,29 +164,29 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
     public void start() {
 
         if (this.layout == null) {
-            addError("异步打点服务appender，必须配置引入layout");
+            addError("layout not found");
             return;
         }
         if (appenderCount == 0) {
-            addError("异步打点服务appender，必须配置引入其他apender");
+            addError("other apender not found");
             return;
         }
         if (queueSize < 1) {
-            addError("异步打点服务appender配置了不合理的队列大小 [" + queueSize + "]");
+            addError("queue size is not proper,value: [" + queueSize + "]");
             return;
         }
         if (!validateCheckPointConfig()) {
             active = false;
-            addError("异步打点服务appender打点配置有误，将不能使用上报日志到打点接口，但不影响其他appender处理日志。");
+            addError("Async checkpoint does not config well,but  it does not effect other appenders");
         }
 
         blockingQueue = new ArrayBlockingQueue<E>(queueSize);
 
         if (discardingThreshold == UNDEFINED)
             discardingThreshold = queueSize / 5;
-        addInfo("异步打点服务appender配置阈值为:" + discardingThreshold);
+        addInfo("discarding threshold is " + discardingThreshold);
 
-        addInfo("初始化kafka集群,集群地址为:" + kafkaBootstrapServers);
+        addInfo("kafka bootstrap server is " + kafkaBootstrapServers);
         KafkaProducerService.init(kafkaBootstrapServers);
 
         worker.setDaemon(true);
@@ -202,12 +202,11 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
         super.stop();
 
         KafkaProducerService.close();
-
         worker.interrupt();
         try {
             worker.join(1000);
         } catch (InterruptedException e) {
-            addError("异步打点服务appender无法join工作线程", e);
+            addError("Async checkpoint cannot be closed by join", e);
         }
     }
 
@@ -239,7 +238,7 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
 
     private void put(E eventObject) {
         if (!blockingQueue.offer(eventObject)) {
-            addWarn("异步打点服务appender无法插入日志事件到队列，队列可能已满");
+            addWarn("block queque is nearly full");
         }
     }
 
@@ -287,8 +286,6 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
             }
 
             shutDownGraceful(executorService);
-
-            addInfo("异步打点服务appender正在关闭，还剩下：" + parent.blockingQueue.remainingCapacity());
             aai.detachAndStopAllAppenders();
         }
 
@@ -296,7 +293,6 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
          * 发送至打点服务
          */
         private void sendToCheckPoint(E e) {
-            addInfo(Thread.currentThread().getName() + ":worker正在上传日志至打点服务");
             CheckPointConfig config = new CheckPointConfig(active, kafkaBootstrapServers, kafkaTopic,
                     logPath, serviceName);
             CheckPointService.send(config, (ILoggingEvent) e, layout);
