@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--configuration: 为logback.xml配置文件的根节点,具有属性 scan,scanPeriod,debug -->
+<!--scan: 当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。 -->
+<!--scanPeriod: 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 -->
+<!--debug: 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false -->
+<configuration debug="true">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder 默认配置为PatternLayoutEncoder -->
+        <encoder>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%-5level] [%X{_logId}] - [myUserLogId:%X{_logUserId}] -
+                [%-30logger{20}] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="COMMONLOG_ROLLINGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <FileNamePattern>/tmp/log/apk_activation_server_%d{yyyy-MM-dd}.log
+            </FileNamePattern>
+            <!--日志文件保留天数 -->
+            <!--<MaxHistory>30</MaxHistory> -->
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%-5level] - [%-30logger{20}] - %msg%n</pattern>
+        </encoder>
+        <!--日志文件最大的大小 -->
+        <!--<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"> -->
+        <!--<MaxFileSize>10MB</MaxFileSize> -->
+        <!--</triggeringPolicy> -->
+    </appender>
+
+    <!-- 异步方式接入打点服务 -->
+    <appender name="ASYNC" class="com.transsnet.palmplay.logback.AsyncCheckPointAppender">
+        <!-- 配置工作线程数，不填，则默认为1，此值不宜设置过大。如果不开启打点，则无需配置此项，否则必填。 -->
+        <workersNum>1</workersNum>
+        <!-- 更改默认的队列大小,默认值为10。此项必填。 -->
+        <queueSize>1000</queueSize>
+        <!-- 添加附加的appender,有且只能添加一个。此项必填。 -->
+        <appender-ref ref="COMMONLOG_ROLLINGFILE"/>
+        <!-- 是否开启打点，应用上了生产需开启，应用还在开发或测试可以关闭 ，true为开启，false为关闭。此项必填。 -->
+        <active>true</active>
+        <!-- 打点服务的路径，不为空。如果不开启打点，则无需配置此项，否则必填。 -->
+        <kafkaBootstrapServers>172.31.17.18:9092,172.31.44.173:9092,172.31.63.201:9092</kafkaBootstrapServers>
+        <!-- 配置打点后台管理界面上的应用名，非自定义，此值需拷贝。如果不开启打点，则无需配置此项，否则必填。 -->
+        <kafkaTopic>vskit_error_log</kafkaTopic>
+        <!-- 配置所属应用的应用名，自定义，该项用来区分不同应用间的日志。如果不开启打点，则无需配置此项，否则必填。 -->
+        <serviceName>logback-verifing</serviceName>
+        <!-- 配置本应用的日志所在的地址，可以拷贝日志appender里配置的固定路径 -->
+        <logPath>/tmp/log</logPath>
+        <!-- 设定输出格式。如果不开启打点，则无需配置此项，否则必填。 -->
+        <layout>
+            <pattern>%d{MM-dd HH:mm:ss.SSS} [%-5level] - [%-30logger{20}] - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!--logger必须在appender后面 -->
+
+    <logger name="com.transsnet.palmplay" level="ERROR" additivity="false">
+        <appender-ref ref="ASYNC"/>
+    </logger>
+
+</configuration>
