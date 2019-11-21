@@ -30,7 +30,7 @@ public class CheckPointService {
     /***
      * 发送数据到打点接口
      */
-    static void send(String topic, CheckPointMessage message) {
+    private static void send(String topic, CheckPointMessage message) {
         KafkaProducerService.produceMsg(topic, JSON.toJSONString(message));
     }
 

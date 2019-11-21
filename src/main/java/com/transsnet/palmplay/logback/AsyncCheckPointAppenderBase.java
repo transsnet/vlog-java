@@ -186,8 +186,8 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
             discardingThreshold = queueSize / 5;
         addInfo("discarding threshold is " + discardingThreshold);
 
-        addInfo("kafka bootstrap server is " + kafkaBootstrapServers);
         KafkaProducerService.init(kafkaBootstrapServers);
+        addInfo("kafka bootstrap server is " + kafkaBootstrapServers);
 
         worker.setDaemon(true);
         worker.setName("AsyncAppender-Worker-" + worker.getName());
