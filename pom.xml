@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.transsnet.palmplay</groupId>
     <artifactId>checkpoint-log-appender</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>checkpointAsynAppender</name>
     <description>send log to elasticsearch by checkpoint interface.</description>
 
