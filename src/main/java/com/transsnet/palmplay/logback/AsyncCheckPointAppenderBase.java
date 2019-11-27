@@ -26,7 +26,6 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
     static final int UNDEFINED = -1;
 
     boolean active = false;
-    int appenderCount = 0;
 
     int discardingThreshold = UNDEFINED;
     int queueSize = DEFAULT_QUEUE_SIZE;
@@ -44,14 +43,6 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
 
     @Override
     public void addAppender(Appender<E> newAppender) {
-        if (appenderCount == 0) {
-            appenderCount++;
-            addInfo("Attaching appender named [" + newAppender.getName() + "] to AsyncAppender.");
-            aai.addAppender(newAppender);
-        } else {
-            addWarn("One and only one appender may be attached to AsyncAppender.");
-            addWarn("Ignoring additional appender named [" + newAppender.getName() + "]");
-        }
     }
 
     @Override
@@ -165,10 +156,6 @@ public class AsyncCheckPointAppenderBase<E> extends UnsynchronizedAppenderBase<E
 
         if (this.layout == null) {
             addError("layout not found");
-            return;
-        }
-        if (appenderCount == 0) {
-            addError("other apender not found");
             return;
         }
         if (queueSize < 1) {

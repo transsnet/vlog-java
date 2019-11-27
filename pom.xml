@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.transsnet.palmplay</groupId>
     <artifactId>checkpoint-log-appender</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.6</version>
     <name>checkpointAsynAppender</name>
     <description>send log to elasticsearch by checkpoint interface.</description>
 
@@ -102,18 +102,4 @@
             <url>https://raw.github.com/JavaServerGroup/jtool-mvn-repository/master/releases</url>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>maven-snapshots</id>
-            <name>maven-snapshots</name>
-            <url>http://10.250.32.54:8081/repository/maven-snapshots/</url>
-            <uniqueVersion>true</uniqueVersion>
-        </snapshotRepository>
-        <repository>
-            <id>maven-releases</id>
-            <name>maven-releases</name>
-            <url>http://10.250.32.54:8081/repository/maven-releases/</url>
-        </repository>
-    </distributionManagement>
 </project>
